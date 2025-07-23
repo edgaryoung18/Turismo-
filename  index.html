@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turismo Panamá</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+    }
+    #map {
+      height: 400px;
+      width: 100%;
+      border-radius: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-top: 2rem;
+    }
+  </style>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body class="bg-gray-100 text-gray-800 relative">
+
+  <a id="inicio"></a>
+
+  <!-- Encabezado -->
+  <header class="bg-gradient-to-r from-teal-500 to-cyan-500 text-white py-6 shadow-md">
+    <h1 class="text-4xl font-bold text-center">Turismo en Panamá</h1>
+    <p class="text-center mt-2">Descubre los destinos más espectaculares del país</p>
+  </header>
+
+  <!-- Introducción -->
+  <section class="max-w-5xl mx-auto p-6 mt-6 bg-white rounded-2xl shadow-md border-l-8 border-teal-500">
+    <p class="text-gray-700 text-lg text-center">
+      Panamá es un país lleno de diversidad cultural y natural que atrae a miles de turistas cada año. A continuación, encontrarás estadísticas actualizadas sobre los visitantes en los destinos turísticos más importantes, así como la distribución porcentual de visitas por tipo de destino.
+    </p>
+  </section>
+
+  <!-- Contenido principal -->
+  <main class="max-w-5xl mx-auto p-6 grid gap-6 md:grid-cols-2">
+
+    <!-- Casco Antiguo -->
+    <section class="bg-white rounded-2xl shadow-md p-6 border-l-8 border-yellow-400 hover:scale-[1.02] transition">
+      <img src="https://i.ibb.co/Vkv0tqW/Casco-antiguo-panam.jpg" height="150" width="150" class="mb-4 mx-auto rounded-lg">
+      <h2 class="text-2xl font-semibold text-yellow-600 mb-2 text-center">Casco Antiguo</h2>
+      <p class="text-gray-700 text-center">
+        El corazón histórico de la Ciudad de Panamá. Calles adoquinadas, arquitectura colonial, plazas llenas de vida y cultura panameña.
+      </p>
+    </section>
+
+    <!-- Guna Yala -->
+    <section class="bg-white rounded-2xl shadow-md p-6 border-l-8 border-pink-400 hover:scale-[1.02] transition">
+      <img src="https://i.ibb.co/vvqyVS6K/Guna-ayala.jpg" height="150" width="150" class="mb-4 mx-auto rounded-lg">
+      <h2 class="text-2xl font-semibold text-pink-600 mb-2 text-center">Guna Yala</h2>
+      <p class="text-gray-700 text-center">
+        Islas como Playón Chico ofrecen cultura Guna, paisajes vírgenes y experiencias únicas junto al mar Caribe.
+      </p>
+    </section>
+
+    <!-- Archipiélago de Las Perlas -->
+    <section class="bg-white rounded-2xl shadow-md p-6 border-l-8 border-indigo-400 hover:scale-[1.02] transition">
+      <img src="https://i.ibb.co/Y7NKRVpF/Archipielago.jpg" height="150" width="150" class="mb-4 mx-auto rounded-lg">
+      <h2 class="text-2xl font-semibold text-indigo-600 mb-2 text-center">Archipiélago de Las Perlas</h2>
+      <p class="text-gray-700 text-center">
+        Este conjunto de islas en el Pacífico ofrece aguas cristalinas ideales para el snorkel, la pesca y la observación de ballenas. Un destino tranquilo y exclusivo, perfecto para escapar de la rutina.
+      </p>
+    </section>
+
+    <!-- Boquete -->
+    <section class="bg-white rounded-2xl shadow-md p-6 border-l-8 border-green-400 hover:scale-[1.02] transition">
+      <img src="https://i.ibb.co/SwB8vXDw/Boquete.jpg" height="150" width="150" class="mb-4 mx-auto rounded-lg">
+      <h2 class="text-2xl font-semibold text-green-600 mb-2 text-center">Boquete</h2>
+      <p class="text-gray-700 text-center">
+        En las tierras altas de Chiriquí, este pueblo ofrece clima fresco, café de altura, senderismo al Volcán Barú y aventura ecológica.
+      </p>
+    </section>
+
+  </main>
+
+  <!-- Estadísticas con filtro de año -->
+  <section class="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-md border-l-8 border-blue-400">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+      <h2 class="text-2xl font-semibold text-blue-600 text-center md:text-left">Visitantes por destino turístico</h2>
+      <label class="mt-4 md:mt-0">
+        <select id="yearSelect" class="ml-4 px-4 py-2 rounded-md border border-gray-300 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <option value="2023">Año 2023</option>
+          <option value="2024" selected>Año 2024</option>
+          <option value="2025">Año 2025</option>
+        </select>
+      </label>
+    </div>
+    <canvas id="turismoChart" class="w-full max-w-3xl mx-auto"></canvas>
+  </section>
+
+  <!-- Estadísticas de distribución por tipo de destino -->
+  <section class="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-md border-l-8 border-purple-500">
+    <h2 class="text-2xl font-semibold text-purple-600 mb-4 text-center">Distribución de visitantes por tipo de destino</h2>
+    <canvas id="tipoChart" class="w-full max-w-md mx-auto"></canvas>
+  </section>
+
+  <!-- Mapa interactivo -->
+  <section class="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-md border-l-8 border-green-500">
+    <h2 class="text-2xl font-semibold text-green-600 mb-4 text-center">Mapa interactivo de destinos turísticos</h2>
+    <div id="map"></div>
+  </section>
+
+  <!-- CDN de Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Scripts -->
+  <script>
+    // Datos para los gráficos de barras
+    const ctx = document.getElementById('turismoChart').getContext('2d');
+    const datosPorAnio = {
+      2023: [220, 160, 130, 180],
+      2024: [250, 180, 140, 200],
+      2025: [270, 190, 150, 220]
+    };
+
+    const chartData = {
+      labels: ['Casco Antiguo', 'Guna Yala', 'Archipiélago de Las Perlas', 'Boquete'],
+      datasets: [{
+        label: 'Visitantes (en miles)',
+        data: datosPorAnio[2024],
+        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+        borderColor: 'rgba(16, 185, 129, 1)',
+        borderWidth: 1
+      }]
+    };
+
+    const turismoChart = new Chart(ctx, {
+      type: 'bar',
+      data: chartData,
+      options: {
+        responsive: true,
+        animation: {
+          duration: 1000,
+          easing: 'easeInOutCubic'
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Miles de visitantes'
+            }
+          }
+        }
+      }
+    });
+
+    document.getElementById('yearSelect').addEventListener('change', (e) => {
+      const year = e.target.value;
+      turismoChart.data.datasets[0].data = datosPorAnio[year];
+      turismoChart.update({
+        duration: 800,
+        easing: 'easeInOutQuad'
+      });
+    });
+
+    // Gráfico de pastel: distribución por tipo de destino
+    const ctx2 = document.getElementById('tipoChart').getContext('2d');
+    const tipoChart = new Chart(ctx2, {
+      type: 'pie',
+      data: {
+        labels: ['Cultura', 'Playas', 'Montaña', 'Naturaleza'],
+        datasets: [{
+          data: [20, 40, 25, 15],
+          backgroundColor: [
+            'rgba(234,179,8,0.7)',
+            'rgba(129,140,248,0.7)',
+            'rgba(74,222,128,0.7)',
+            'rgba(244,114,182,0.7)'
+          ],
+          borderColor: ['#EAB308', '#818CF8', '#4ADE80', '#F472B6'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+
+    // Inicializar mapa Leaflet
+    const map = L.map('map').setView([8.7, -79.0], 7.5);
+
+    // Capa base - OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Marcadores con popups
+    const destinos = [
+      {
+        nombre: "Casco Antiguo",
+        coords: [8.95, -79.53],
+        img: "https://i.ibb.co/Vkv0tqW/Casco-antiguo-panam.jpg",
+        desc: "El corazón histórico de la Ciudad de Panamá con arquitectura colonial."
+      },
+      {
+        nombre: "Guna Yala",
+        coords: [9.3049, -78.2331],  // Playón Chico
+        img: "https://i.ibb.co/vvqyVS6K/Guna-ayala.jpg",
+        desc: "Islas como Playón Chico ofrecen cultura Guna, paisajes vírgenes y experiencias únicas junto al mar Caribe."
+      },
+      {
+        nombre: "Archipiélago de Las Perlas",
+        coords: [8.3985, -78.8722],  // Isla San Miguel
+        img: "https://i.ibb.co/Y7NKRVpF/Archipielago.jpg",
+        desc: "Este conjunto de islas en el Pacífico ofrece aguas cristalinas ideales para el snorkel, la pesca y la observación de ballenas. Un destino tranquilo y exclusivo, perfecto para escapar de la rutina."
+      },
+      {
+        nombre: "Boquete",
+        coords: [8.79, -82.44],
+        img: "https://i.ibb.co/SwB8vXDw/Boquete.jpg",
+        desc: "Clima fresco, café de altura y senderismo al Volcán Barú."
+      }
+    ];
+
+    destinos.forEach(d => {
+      const marker = L.marker(d.coords).addTo(map);
+      marker.bindPopup(`
+        <strong>${d.nombre}</strong><br>
+        <img src="${d.img}" alt="${d.nombre}" style="width:120px; border-radius: 8px; margin-top: 5px;"><br>
+        <small>${d.desc}</small>
+      `);
+    });
+  </script>
+
+  <!-- Botón "Subir arriba" -->
+  <a href="#inicio"
+     class="fixed bottom-6 right-6 bg-teal-500 hover:bg-teal-600 text-white p-3 rounded-full shadow-lg transition duration-300"
+     title="Subir arriba">
+    ⬆️
+  </a>
+
+  <!-- Footer -->
+  <footer class="text-center text-sm text-gray-500 py-6">
+    © 2025 Turismo Panamá. Todos los derechos reservados.
+  </footer>
+
+</body>
+</html>
